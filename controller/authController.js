@@ -27,6 +27,7 @@ export const signUp = async (req, res, next) => {
           user,
           email,
           password: hashedPassword,
+          isAdmin: false, // Default to false
         },
       ],
       { session }
