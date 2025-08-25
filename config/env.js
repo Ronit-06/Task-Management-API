@@ -1,5 +1,9 @@
 import { config } from "dotenv";
 
+// Load environment variables from .env file instead of .env by default
+
 config({ path: ".env.development.local" });
 
-export const { PORT, MONGODB_URI } = process.env;
+// Export environment variables
+
+export const { PORT, MONGODB_URI, JWT_SECRET } = process.env;

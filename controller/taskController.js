@@ -1,9 +1,9 @@
-import task from "../models/task.model.js";
+import Task from "../models/task.model.js";
 
 // Controller to get all tasks
 export const getAllTasks = async (req, res) => {
   try {
-    const tasks = await task.find();
+    const tasks = await Task.find();
     res.status(200).json(tasks);
   } catch (error) {
     res.status(500).json({ message: "Error fetching tasks", error });
@@ -14,7 +14,7 @@ export const getAllTasks = async (req, res) => {
 export const getTaskById = async (req, res) => {
   try {
     const taskId = req.params.id;
-    const taskData = await task.findById(taskId);
+    const taskData = await Task.findById(taskId);
     res.status(200).json(taskData);
   } catch (error) {
     res.status(500).json({ message: "Error fetching task", error });
@@ -24,7 +24,7 @@ export const getTaskById = async (req, res) => {
 // Controller to create a new task
 export const createTask = async (req, res) => {
   try {
-    const newTask = await task.create({
+    const newTask = await Task.create({
       title: req.body.title,
       description: req.body.description,
       status: req.body.status,
@@ -42,7 +42,7 @@ export const createTask = async (req, res) => {
 export const updateTask = async (req, res) => {
   try {
     const taskId = req.params.id;
-    const updatedTask = await task.findByIdAndUpdate(
+    const updatedTask = await Task.findByIdAndUpdate(
       taskId,
       { ...req.body, updatedAt: Date.now() },
       { new: true }
@@ -57,7 +57,7 @@ export const updateTask = async (req, res) => {
 export const deleteTask = async (req, res) => {
   try {
     const taskId = req.params.id;
-    await task.findByIdAndDelete(taskId);
+    await Task.findByIdAndDelete(taskId);
     res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting task", error });
