@@ -70,18 +70,21 @@ export const login = async (req, res, next) => {
       expiresIn: "1d",
     });
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Login successful",
-        data: { user, token },
-      });
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      data: { user, token },
+    });
   } catch (error) {
     next(error);
   }
 };
 
-export const logout = async (req, res, next) => (req, res, next) => {
+export const logout = async (res, next) => {
   //logout user
+  try {
+    res.status(200).json({ success: true, message: "Logout successful" });
+  } catch (error) {
+    next(error);
+  }
 };
