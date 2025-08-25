@@ -6,7 +6,7 @@ const userRouter = Router();
 
 //Routes for user management
 
-userRouter.get("/", getUsers);
+userRouter.get("/", getUsers); //admin only
 userRouter.get("/:id", authorize, getUser);
 
 export default userRouter;
