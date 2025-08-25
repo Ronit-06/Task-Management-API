@@ -42,9 +42,11 @@ export const createTask = async (req, res) => {
 export const updateTask = async (req, res) => {
   try {
     const taskId = req.params.id;
-    const updatedTask = await task.findByIdAndUpdate(taskId, req.body, {
-      new: true,
-    });
+    const updatedTask = await task.findByIdAndUpdate(
+      taskId,
+      { ...req.body, updatedAt: Date.now() },
+      { new: true }
+    );
     res.status(200).json(updatedTask);
   } catch (error) {
     res.status(500).json({ message: "Error updating task", error });
