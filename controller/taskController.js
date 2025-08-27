@@ -1,4 +1,5 @@
 import Task from "../models/task.model.js";
+import mongoose from "mongoose";
 
 // Controller to get all tasks
 export const getAllTasks = async (req, res) => {
@@ -85,12 +86,12 @@ export const assignUser = async (req, res) => {
 };
 
 // Controller to unassign a user from a task
-export const unassignUser = async (req, res)=>{
-  try{
-    const taskId= req.params.id;
+export const unassignUser = async (req, res) => {
+  try {
+    const taskId = req.params.id;
     const { userId } = req.body;
     const task = await Task.findById(taskId);
-    if(!task){
+    if (!task) {
       res.status(404).json({ message: "Task not found" });
     }
     const updatedTask = await Task.findByIdAndUpdate(
@@ -99,7 +100,53 @@ export const unassignUser = async (req, res)=>{
       { new: true }
     );
     res.status(200).json(updatedTask);
-  }catch(error){
-    res.status(500).json({ message: "Error unassigning user from task", error });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error unassigning user from task", error });
+  }
+};
+
+//Add comment to a task
+export const addComment = async (req, res) => {
+  try {
+    const taskId = req.params.id;
+    const { user, comment } = req.body;
+    const task = await Task.findById(taskId);
+    if (!task) {
+      res.status(404).json({ message: "Task not found" });
+    }
+
+    const newComment = { _id: new mongoose.Types.ObjectId(), user, comment };
+    const updatedTask = await Task.findByIdAndUpdate(
+      taskId,
+      { $push: { comments: newComment }, updatedAt: Date.now() },
+      { new: true }
+    );
+    res.status(200).json(updatedTask);
+  } catch (error) {
+    res.status(500).json({ message: "Error adding comment to task", error });
+  }
+};
+
+//Delete comment from a task
+export const deleteComment = async (req, res) => {
+  try {
+    const taskId = req.params.id;
+    const commentId = req.params.commentId;
+    const task = await Task.findById(taskId);
+    if (!task) {
+      res.status(404).json({ message: "Task not found" });
+    }
+
+    const updatedTask = await Task.findByIdAndUpdate(
+      taskId,
+      { $pull: { comments: { _id: commentId } }, updatedAt: Date.now() },
+      { new: true }
+    );
+
+    res.status(200).json(updatedTask);
+  } catch (error) { 
+    res.status(500).json({ message: "Error deleting comment from task", error });
   }
 }

@@ -6,7 +6,9 @@ import {
   updateTask,
   deleteTask,
   assignUser,
-  unassignUser
+  unassignUser,
+  addComment,
+  deleteComment
 } from "../controller/taskController.js";
 import { authorize } from "../middlewares/auth.middleware.js";
 
@@ -22,5 +24,7 @@ taskRouter.put("/:id", updateTask);
 taskRouter.delete("/:id", deleteTask);
 taskRouter.post("/:id/assign", assignUser);
 taskRouter.post("/:id/unassign", unassignUser);
+taskRouter.post("/:id/comments", addComment);
+taskRouter.delete("/:id/comments/:commentId", deleteComment);
 
 export default taskRouter;
