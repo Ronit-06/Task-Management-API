@@ -2,7 +2,6 @@ import User from "../models/user.model.js";
 
 export const getUsers = async (req, res, next) => {
   try {
-    console.log(req.body);
     if (!req.user || !req.user.isAdmin) {
       return res.status(403).json({ message: "Admin access required" });
     }

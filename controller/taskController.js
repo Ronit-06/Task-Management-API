@@ -45,7 +45,7 @@ export const updateTask = async (req, res) => {
     const updatedTask = await Task.findByIdAndUpdate(
       taskId,
       { ...req.body, updatedAt: Date.now() },
-      { new: true }
+      { new: true } // need to add specific remove and add fields
     );
     res.status(200).json(updatedTask);
   } catch (error) {
@@ -64,3 +64,42 @@ export const deleteTask = async (req, res) => {
   }
 };
 
+// Controller to assign a user to a task
+export const assignUser = async (req, res) => {
+  try {
+    const taskId = req.params.id;
+    const { userId } = req.body;
+    const task = await Task.findById(taskId);
+    if (!task) {
+      res.status(404).json({ message: "Task not found" });
+    }
+    const updatedTask = await Task.findByIdAndUpdate(
+      taskId,
+      { $push: { assignedUser: userId }, updatedAt: Date.now() }, // to add user to array
+      { new: true }
+    );
+    res.status(200).json(updatedTask);
+  } catch (error) {
+    res.status(500).json({ message: "Error assigning user to task", error });
+  }
+};
+
+// Controller to unassign a user from a task
+export const unassignUser = async (req, res)=>{
+  try{
+    const taskId= req.params.id;
+    const { userId } = req.body;
+    const task = await Task.findById(taskId);
+    if(!task){
+      res.status(404).json({ message: "Task not found" });
+    }
+    const updatedTask = await Task.findByIdAndUpdate(
+      taskId,
+      { $pull: { assignedUser: userId }, updatedAt: Date.now() }, // to remove user from array
+      { new: true }
+    );
+    res.status(200).json(updatedTask);
+  }catch(error){
+    res.status(500).json({ message: "Error unassigning user from task", error });
+  }
+}

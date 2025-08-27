@@ -9,10 +9,12 @@ const taskSchema = new mongoose.Schema({
     default: "pending",
   },
   dueDate: { type: Date, required: true },
-  assignedUser: { type: String, required: true },
+  assignedUser: { type: Array, required: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
+
+//need to add comments on tasks later
 
 const Task = mongoose.model("Task", taskSchema);
 
