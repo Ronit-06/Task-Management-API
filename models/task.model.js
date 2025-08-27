@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Comment Schema seperate from Task Schema to manage comments individually
 const commentSchema = new mongoose.Schema({
   _id: { type: mongoose.Schema.Types.ObjectId, default: new mongoose.Types.ObjectId() },
   user: { type: String, required: true },
@@ -7,6 +8,7 @@ const commentSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+// Task Schema definition
 const taskSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },

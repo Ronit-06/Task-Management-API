@@ -1,5 +1,6 @@
 import Task from "../models/task.model.js";
 import mongoose from "mongoose";
+import Log from "../models/log.model.js";
 
 // Controller to get all tasks
 export const getAllTasks = async (req, res) => {
@@ -33,6 +34,12 @@ export const createTask = async (req, res) => {
       assignedUser: req.body.assignedUser,
     });
 
+    await Log.create({
+      action: "Task Created",
+      details: `Task ${newTask._id} created`,
+      user: req.user ? req.user._id : null,
+    });
+
     res.status(201).json(newTask);
   } catch (error) {
     res.status(500).json({ message: "Error creating task", error });
@@ -48,6 +55,13 @@ export const updateTask = async (req, res) => {
       { ...req.body, updatedAt: Date.now() },
       { new: true } // need to add specific remove and add fields
     );
+
+    await Log.create({
+      action: "Task Updated",
+      details: `Task ${taskId} updated`,
+      user: req.user ? req.user._id : null,
+    });
+
     res.status(200).json(updatedTask);
   } catch (error) {
     res.status(500).json({ message: "Error updating task", error });
@@ -59,6 +73,11 @@ export const deleteTask = async (req, res) => {
   try {
     const taskId = req.params.id;
     await Task.findByIdAndDelete(taskId);
+
+    await Log.create({
+      action:"Task Deleted",
+      details: `Task ${taskId} deleted`,
+    })
     res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting task", error });
@@ -79,6 +98,13 @@ export const assignUser = async (req, res) => {
       { $push: { assignedUser: userId }, updatedAt: Date.now() }, // to add user to array
       { new: true }
     );
+
+    await Log.create({
+      action: "User Assigned to Task",
+      details: `User ${userId} assigned to Task ${taskId}`,
+      user: req.user ? req.user._id : null,
+    });
+
     res.status(200).json(updatedTask);
   } catch (error) {
     res.status(500).json({ message: "Error assigning user to task", error });
@@ -99,6 +125,13 @@ export const unassignUser = async (req, res) => {
       { $pull: { assignedUser: userId }, updatedAt: Date.now() }, // to remove user from array
       { new: true }
     );
+
+    await Log.create({
+      action: "User unassigned to Task",
+      details: `User ${userId} unassigned to Task ${taskId}`,
+      user: req.user ? req.user._id : null,
+    });
+
     res.status(200).json(updatedTask);
   } catch (error) {
     res
@@ -123,6 +156,13 @@ export const addComment = async (req, res) => {
       { $push: { comments: newComment }, updatedAt: Date.now() },
       { new: true }
     );
+    
+    await Log.create({
+      action: "Comment Added to Task",
+      details: `Comment added to Task ${taskId}`,
+      user: req.user ? req.user._id : null,
+    });
+
     res.status(200).json(updatedTask);
   } catch (error) {
     res.status(500).json({ message: "Error adding comment to task", error });
@@ -144,6 +184,12 @@ export const deleteComment = async (req, res) => {
       { $pull: { comments: { _id: commentId } }, updatedAt: Date.now() },
       { new: true }
     );
+
+    await Log.create({
+      action: "Comment removed from Task",
+      details: `Comment removed from Task ${taskId}`,
+      user: req.user ? req.user._id : null,
+    });
 
     res.status(200).json(updatedTask);
   } catch (error) { 

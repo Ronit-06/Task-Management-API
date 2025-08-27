@@ -1,3 +1,4 @@
+// Get all users information - Admin only
 import User from "../models/user.model.js";
 
 export const getUsers = async (req, res, next) => {
@@ -12,6 +13,7 @@ export const getUsers = async (req, res, next) => {
   }
 };
 
+//  Get single user by ID
 export const getUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
