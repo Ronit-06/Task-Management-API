@@ -58,7 +58,7 @@ export const updateTask = async (req, res) => {
 
     await Log.create({
       action: "Task Updated",
-      details: `Task ${taskId} updated`,
+      details: `Task ${taskId} updated and modifications: ${JSON.stringify(req.body)}`,
       user: req.user ? req.user._id : null,
     });
 
