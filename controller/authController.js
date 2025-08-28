@@ -81,8 +81,8 @@ export const login = async (req, res, next) => {
   }
 };
 
+//logout user : Just a placeholder as JWT is stateless
 export const logout = async (res, next) => {
-  //logout user
   try {
     res.status(200).json({ success: true, message: "Logout successful" });
   } catch (error) {

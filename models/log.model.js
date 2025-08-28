@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Define the schema for logging actions
 const logSchema = new mongoose.Schema({
     action: { type: String, required: true },
     user: { type: String, required: true },

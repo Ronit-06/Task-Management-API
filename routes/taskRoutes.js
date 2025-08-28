@@ -8,7 +8,8 @@ import {
   assignUser,
   unassignUser,
   addComment,
-  deleteComment
+  deleteComment,
+  getTasksByPriority
 } from "../controller/taskController.js";
 import { authorize } from "../middlewares/auth.middleware.js";
 
@@ -26,5 +27,6 @@ taskRouter.post("/:id/assign", assignUser);
 taskRouter.post("/:id/unassign", unassignUser);
 taskRouter.post("/:id/comments", addComment);
 taskRouter.delete("/:id/comments/:commentId", deleteComment);
+taskRouter.get("/priority/:level", getTasksByPriority);
 
 export default taskRouter;

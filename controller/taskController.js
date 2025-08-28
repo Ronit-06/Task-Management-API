@@ -196,3 +196,14 @@ export const deleteComment = async (req, res) => {
     res.status(500).json({ message: "Error deleting comment from task", error });
   }
 }
+
+//priority filtering
+export const getTasksByPriority = async (req, res, next) => {
+  try {
+    const { priority } = req.params;
+    const tasks = await Task.find({ priority });
+    res.status(200).json({ success: true, data: tasks });
+  } catch (error) {
+    next(error);
+  }
+};
