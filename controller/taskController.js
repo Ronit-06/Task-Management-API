@@ -1,6 +1,7 @@
 import Task from "../models/task.model.js";
 import mongoose from "mongoose";
 import Log from "../models/log.model.js";
+import { sendReminderEmail } from "../utils/send-email.js";
 
 // Controller to get all tasks
 export const getAllTasks = async (req, res) => {
@@ -40,6 +41,8 @@ export const createTask = async (req, res) => {
       user: req.user ? req.user._id : null,
     });
 
+    await triggerReminder(newTask);
+
     res.status(201).json(newTask);
   } catch (error) {
     res.status(500).json({ message: "Error creating task", error });
@@ -58,10 +61,13 @@ export const updateTask = async (req, res) => {
 
     await Log.create({
       action: "Task Updated",
-      details: `Task ${taskId} updated and modifications: ${JSON.stringify(req.body)}`,
+      details: `Task ${taskId} updated and modifications: ${JSON.stringify(
+        req.body
+      )}`,
       user: req.user ? req.user._id : null,
     });
 
+    await triggerReminder(updatedTask);
     res.status(200).json(updatedTask);
   } catch (error) {
     res.status(500).json({ message: "Error updating task", error });
@@ -75,9 +81,9 @@ export const deleteTask = async (req, res) => {
     await Task.findByIdAndDelete(taskId);
 
     await Log.create({
-      action:"Task Deleted",
+      action: "Task Deleted",
       details: `Task ${taskId} deleted`,
-    })
+    });
     res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting task", error });
@@ -156,7 +162,7 @@ export const addComment = async (req, res) => {
       { $push: { comments: newComment }, updatedAt: Date.now() },
       { new: true }
     );
-    
+
     await Log.create({
       action: "Comment Added to Task",
       details: `Comment added to Task ${taskId}`,
@@ -192,10 +198,12 @@ export const deleteComment = async (req, res) => {
     });
 
     res.status(200).json(updatedTask);
-  } catch (error) { 
-    res.status(500).json({ message: "Error deleting comment from task", error });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error deleting comment from task", error });
   }
-}
+};
 
 //priority filtering
 export const getTasksByPriority = async (req, res, next) => {
@@ -205,5 +213,42 @@ export const getTasksByPriority = async (req, res, next) => {
     res.status(200).json({ success: true, data: tasks });
   } catch (error) {
     next(error);
+  }
+};
+
+// Function to trigger reminder emails based on due dates
+const triggerReminder = async (task) => {
+  try {
+    const currentDate = new Date();
+    const dueDate = new Date(task.dueDate);
+
+    // Calculate the difference in days
+    const timeDifference = dueDate - currentDate;
+    const daysRemaining = Math.ceil(timeDifference / (1000 * 60 * 60 * 24)); // Convert milliseconds to days
+
+    // Check if the difference matches the predefined intervals
+    console.log(`Days remaining for task "${task.title}":`, daysRemaining);
+    const reminderIntervals = [1, 3, 5, 7];
+    if (reminderIntervals.includes(daysRemaining)) {
+      // Send reminder email
+      console.log(
+        `Sending reminder for task "${task.title}" with ${daysRemaining} day(s) remaining.`
+      );
+      await sendReminderEmail({
+        to: task.assignedUser, // Array of assigned users
+        task: task,
+        daysRemaining: daysRemaining,
+      });
+      console.log(
+        `Reminder email sent for task "${task.title}" with ${daysRemaining} day(s) remaining.`
+      );
+    }
+
+    await Log.create({
+      action: "Reminder Triggered",
+      details: `Reminder check for Task ${task._id} with ${daysRemaining} day(s) remaining`,
+    });
+  } catch (error) {
+    console.error("Error triggering reminder:", error);
   }
 };

@@ -2,10 +2,18 @@ import mongoose from "mongoose";
 
 // Comment Schema seperate from Task Schema to manage comments individually
 const commentSchema = new mongoose.Schema({
-  _id: { type: mongoose.Schema.Types.ObjectId, default: new mongoose.Types.ObjectId() },
+  _id: {
+    type: mongoose.Schema.Types.ObjectId,
+    default: new mongoose.Types.ObjectId(),
+  },
   user: { type: String, required: true },
   comment: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
+});
+
+const assignedUserSchema = new mongoose.Schema({
+  user: { type: String, required: true },
+  email: { type: String, required: true },
 });
 
 // Task Schema definition
@@ -17,9 +25,13 @@ const taskSchema = new mongoose.Schema({
     enum: ["pending", "in-progress", "completed"],
     default: "pending",
   },
-  priority: {type: String, enum: ["low", "medium", "high"], default: "medium" },
+  priority: {
+    type: String,
+    enum: ["low", "medium", "high"],
+    default: "medium",
+  },
   dueDate: { type: Date, required: true },
-  assignedUser: { type: Array, required: true },
+  assignedUser: { type: [assignedUserSchema], required: true },
   comments: { type: [commentSchema], required: false },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

@@ -12,3 +12,4 @@ export const getLogs = async (req, res, next) => {
     next(error);
   }
 };
+
