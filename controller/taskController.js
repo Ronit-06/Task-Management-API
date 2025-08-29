@@ -18,7 +18,7 @@ export const getAllTasks = async (req, res) => {
   try {
     const tasks = await Task.find();
 
-    await getAllTasksLog(req.user ? req.user._id : null);
+    await getAllTasksLog({ userId: req.user._id || null });
     res.status(200).json(tasks);
   } catch (error) {
     res.status(500).json({ message: "Error fetching tasks", error });
@@ -49,6 +49,8 @@ export const createTask = async (req, res) => {
       dueDate: req.body.dueDate,
       assignedUser: req.body.assignedUser,
     });
+
+    console.log("this is the user:" + req.user);
 
     await createTaskLog({
       taskId: newTask._id,
@@ -83,7 +85,7 @@ export const updateTask = async (req, res) => {
 
     await updateTaskLog({
       taskId: updatedTask._id,
-      userId: req.user ? req.user._id : null,
+      userId: req.user._id || null,
     });
 
     await triggerReminder(updatedTask);
@@ -101,7 +103,7 @@ export const deleteTask = async (req, res) => {
 
     await deleteTaskLog({
       taskId: taskId,
-      userId: req.user ? req.user._id : null,
+      userId: req.user._id || null,
     });
 
     res.status(200).json({ message: "Task deleted successfully" });
@@ -140,7 +142,7 @@ export const assignUser = async (req, res) => {
     await assignUserLog({
       taskId,
       assignedUserId: userId,
-      userId: req.user ? req.user._id : null,
+      userId: req.user._id || null,
     });
 
     res.status(200).json(updatedTask);
@@ -173,7 +175,7 @@ export const unassignUser = async (req, res) => {
     await unassignUserLog({
       taskId,
       unassignedUserId: userId,
-      userId: req.user ? req.user._id : null,
+      userId: req.user._id || null,
     });
 
     res.status(200).json(updatedTask);
@@ -205,7 +207,7 @@ export const addComment = async (req, res) => {
     await addCommentLog({
       taskId,
       commentId: newComment._id,
-      userId: req.user ? req.user._id : null,
+      userId: req.user._id || null,
     });
 
     res.status(200).json(updatedTask);
@@ -240,7 +242,7 @@ export const deleteComment = async (req, res) => {
     await deleteCommentLog({
       taskId,
       commentId,
-      userId: req.user ? req.user._id : null,
+      userId: req.user._id || null,
     });
 
     res.status(200).json(updatedTask);
@@ -262,7 +264,7 @@ export const getTasksByPriority = async (req, res, next) => {
       throw new Error(`Invalid priority: ${priority}`);
     }
 
-    await getAllTasksLog({ priority, userId: req.user ? req.user._id : null });
+    await getAllTasksLog({ priority, userId: req.user._id || null });
 
     res.status(200).json({ success: true, data: tasks });
   } catch (error) {

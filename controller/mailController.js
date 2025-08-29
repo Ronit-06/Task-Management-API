@@ -12,7 +12,6 @@ export const triggerReminder = async (task) => {
     const daysRemaining = Math.ceil(timeDifference / (1000 * 60 * 60 * 24)); // Convert milliseconds to days
 
     // Check if the difference matches the predefined intervals
-    console.log(`Days remaining for task "${task.title}":`, daysRemaining);
     const reminderIntervals = [1, 3, 5, 7];
     if (reminderIntervals.includes(daysRemaining)) {
       // Send reminder email

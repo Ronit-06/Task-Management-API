@@ -29,8 +29,9 @@ export const createTaskLog = async ({ taskId, userId }) => {
   try {
     await Log.create({
       action: "Task Created",
+      user: userId || "System", // Use userId directly
       details: `Task ${taskId} created`,
-      user: userId || null, // Use userId directly
+       
     });
   } catch (e) {
     throw new Error("Failed to create log: " + e.message);
