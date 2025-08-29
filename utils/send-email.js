@@ -2,11 +2,13 @@ import { EMAIL } from "../config/env.js";
 import { reminderEmailTemplate } from "./email-template.js";
 import { transporter } from "../config/nodemailer.js";
 
+// Function to send reminder emails
 export const sendReminderEmail = async ({ to, task, daysRemaining }) => {
   if (!to || !task || !daysRemaining) {
     throw new Error("Missing parameters to send email");
   }
 
+  // Send email to each user in the 'to' array
   for (const user of to) {
     const emailContent = reminderEmailTemplate(
       task.title,
@@ -26,7 +28,7 @@ export const sendReminderEmail = async ({ to, task, daysRemaining }) => {
     };
 
     try {
-      await transporter.sendMail(mailOptions);
+      await transporter.sendMail(mailOptions); // Await the sendMail promise
       console.log(`Email sent to ${user.email}`);
     } catch (error) {
       console.error(`Error sending email to ${user.email}:`, error);

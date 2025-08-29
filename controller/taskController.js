@@ -1,12 +1,24 @@
 import Task from "../models/task.model.js";
 import mongoose from "mongoose";
-import Log from "../models/log.model.js";
-import { sendReminderEmail } from "../utils/send-email.js";
+import { triggerReminder } from "./mailController.js";
+import User from "../models/user.model.js";
+import {
+  createTaskLog,
+  getAllTasksLog,
+  updateTaskLog,
+  deleteTaskLog,
+  assignUserLog,
+  unassignUserLog,
+  addCommentLog,
+  deleteCommentLog,
+} from "./logController.js";
 
 // Controller to get all tasks
 export const getAllTasks = async (req, res) => {
   try {
     const tasks = await Task.find();
+
+    await getAllTasksLog(req.user ? req.user._id : null);
     res.status(200).json(tasks);
   } catch (error) {
     res.status(500).json({ message: "Error fetching tasks", error });
@@ -18,6 +30,9 @@ export const getTaskById = async (req, res) => {
   try {
     const taskId = req.params.id;
     const taskData = await Task.findById(taskId);
+    if (!taskData) {
+      return res.status(404).json({ message: "Task not found" });
+    }
     res.status(200).json(taskData);
   } catch (error) {
     res.status(500).json({ message: "Error fetching task", error });
@@ -35,12 +50,10 @@ export const createTask = async (req, res) => {
       assignedUser: req.body.assignedUser,
     });
 
-    await Log.create({
-      action: "Task Created",
-      details: `Task ${newTask._id} created`,
-      user: req.user ? req.user._id : null,
+    await createTaskLog({
+      taskId: newTask._id,
+      userId: req.user ? req.user._id : null,
     });
-
     await triggerReminder(newTask);
 
     res.status(201).json(newTask);
@@ -53,18 +66,24 @@ export const createTask = async (req, res) => {
 export const updateTask = async (req, res) => {
   try {
     const taskId = req.params.id;
+    const { title, description, status, dueDate, assignedUser } = req.body;
     const updatedTask = await Task.findByIdAndUpdate(
       taskId,
-      { ...req.body, updatedAt: Date.now() },
-      { new: true } // need to add specific remove and add fields
+      {
+        // The only fields that are allowed to be updated
+        title,
+        description,
+        status,
+        dueDate,
+        assignedUser,
+        updatedAt: Date.now(),
+      },
+      { new: true }
     );
 
-    await Log.create({
-      action: "Task Updated",
-      details: `Task ${taskId} updated and modifications: ${JSON.stringify(
-        req.body
-      )}`,
-      user: req.user ? req.user._id : null,
+    await updateTaskLog({
+      taskId: updatedTask._id,
+      userId: req.user ? req.user._id : null,
     });
 
     await triggerReminder(updatedTask);
@@ -80,10 +99,11 @@ export const deleteTask = async (req, res) => {
     const taskId = req.params.id;
     await Task.findByIdAndDelete(taskId);
 
-    await Log.create({
-      action: "Task Deleted",
-      details: `Task ${taskId} deleted`,
+    await deleteTaskLog({
+      taskId: taskId,
+      userId: req.user ? req.user._id : null,
     });
+
     res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting task", error });
@@ -96,8 +116,20 @@ export const assignUser = async (req, res) => {
     const taskId = req.params.id;
     const { userId } = req.body;
     const task = await Task.findById(taskId);
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
     if (!task) {
       res.status(404).json({ message: "Task not found" });
+      return;
+    }
+
+    if (task.assignedUser.includes(userId)) {
+      return res
+        .status(400)
+        .json({ message: "User is already assigned to this task" });
     }
     const updatedTask = await Task.findByIdAndUpdate(
       taskId,
@@ -105,10 +137,10 @@ export const assignUser = async (req, res) => {
       { new: true }
     );
 
-    await Log.create({
-      action: "User Assigned to Task",
-      details: `User ${userId} assigned to Task ${taskId}`,
-      user: req.user ? req.user._id : null,
+    await assignUserLog({
+      taskId,
+      assignedUserId: userId,
+      userId: req.user ? req.user._id : null,
     });
 
     res.status(200).json(updatedTask);
@@ -125,6 +157,12 @@ export const unassignUser = async (req, res) => {
     const task = await Task.findById(taskId);
     if (!task) {
       res.status(404).json({ message: "Task not found" });
+      return;
+    }
+    if (!task.assignedUser.includes(userId)) {
+      return res
+        .status(400)
+        .json({ message: "User is not assigned to this task" });
     }
     const updatedTask = await Task.findByIdAndUpdate(
       taskId,
@@ -132,10 +170,10 @@ export const unassignUser = async (req, res) => {
       { new: true }
     );
 
-    await Log.create({
-      action: "User unassigned to Task",
-      details: `User ${userId} unassigned to Task ${taskId}`,
-      user: req.user ? req.user._id : null,
+    await unassignUserLog({
+      taskId,
+      unassignedUserId: userId,
+      userId: req.user ? req.user._id : null,
     });
 
     res.status(200).json(updatedTask);
@@ -154,6 +192,7 @@ export const addComment = async (req, res) => {
     const task = await Task.findById(taskId);
     if (!task) {
       res.status(404).json({ message: "Task not found" });
+      return;
     }
 
     const newComment = { _id: new mongoose.Types.ObjectId(), user, comment };
@@ -163,10 +202,10 @@ export const addComment = async (req, res) => {
       { new: true }
     );
 
-    await Log.create({
-      action: "Comment Added to Task",
-      details: `Comment added to Task ${taskId}`,
-      user: req.user ? req.user._id : null,
+    await addCommentLog({
+      taskId,
+      commentId: newComment._id,
+      userId: req.user ? req.user._id : null,
     });
 
     res.status(200).json(updatedTask);
@@ -181,8 +220,15 @@ export const deleteComment = async (req, res) => {
     const taskId = req.params.id;
     const commentId = req.params.commentId;
     const task = await Task.findById(taskId);
+
     if (!task) {
       res.status(404).json({ message: "Task not found" });
+      return;
+    }
+
+    const comment = task.comments.findById(commentId);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
     }
 
     const updatedTask = await Task.findByIdAndUpdate(
@@ -191,10 +237,10 @@ export const deleteComment = async (req, res) => {
       { new: true }
     );
 
-    await Log.create({
-      action: "Comment removed from Task",
-      details: `Comment removed from Task ${taskId}`,
-      user: req.user ? req.user._id : null,
+    await deleteCommentLog({
+      taskId,
+      commentId,
+      userId: req.user ? req.user._id : null,
     });
 
     res.status(200).json(updatedTask);
@@ -210,45 +256,16 @@ export const getTasksByPriority = async (req, res, next) => {
   try {
     const { priority } = req.params;
     const tasks = await Task.find({ priority });
+
+    const validPriorities = ["low", "medium", "high"];
+    if (!validPriorities.includes(priority)) {
+      throw new Error(`Invalid priority: ${priority}`);
+    }
+
+    await getAllTasksLog({ priority, userId: req.user ? req.user._id : null });
+
     res.status(200).json({ success: true, data: tasks });
   } catch (error) {
     next(error);
-  }
-};
-
-// Function to trigger reminder emails based on due dates
-const triggerReminder = async (task) => {
-  try {
-    const currentDate = new Date();
-    const dueDate = new Date(task.dueDate);
-
-    // Calculate the difference in days
-    const timeDifference = dueDate - currentDate;
-    const daysRemaining = Math.ceil(timeDifference / (1000 * 60 * 60 * 24)); // Convert milliseconds to days
-
-    // Check if the difference matches the predefined intervals
-    console.log(`Days remaining for task "${task.title}":`, daysRemaining);
-    const reminderIntervals = [1, 3, 5, 7];
-    if (reminderIntervals.includes(daysRemaining)) {
-      // Send reminder email
-      console.log(
-        `Sending reminder for task "${task.title}" with ${daysRemaining} day(s) remaining.`
-      );
-      await sendReminderEmail({
-        to: task.assignedUser, // Array of assigned users
-        task: task,
-        daysRemaining: daysRemaining,
-      });
-      console.log(
-        `Reminder email sent for task "${task.title}" with ${daysRemaining} day(s) remaining.`
-      );
-    }
-
-    await Log.create({
-      action: "Reminder Triggered",
-      details: `Reminder check for Task ${task._id} with ${daysRemaining} day(s) remaining`,
-    });
-  } catch (error) {
-    console.error("Error triggering reminder:", error);
   }
 };
