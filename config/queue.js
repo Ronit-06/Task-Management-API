@@ -1,12 +1,13 @@
 import Queue from "bull";
+import { REDIS_HOST, REDIS_PORT, REDIS_USERNAME, REDIS_PASSWORD } from "./env";
 
 // Create a Bull queue for sending emails
 export const emailQueue = new Queue("emailQueue", {
   redis: {
-    host: "redis-12570.c264.ap-south-1-1.ec2.redns.redis-cloud.com",
-    port: 12570,
-    username: "default",
-    password: "WwRwB1J1dVBmCHr2PAiQPxtJ657XxRmb",
+    host: REDIS_HOST,
+    port: REDIS_PORT,
+    username: REDIS_USERNAME,
+    password: REDIS_PASSWORD,
   },
 });
 
