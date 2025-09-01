@@ -72,14 +72,61 @@ Includes advanced features like **reminder emails, bot protection, rate limiting
 
   - **📦 Installation**
      - Clone the repository:
+       
        ```
        git clone https://github.com/Ronit-06/Task-Management-API.git
        cd Task-Management-API
        ```
+       
+    - Install dependencies:
+      
+      ```
+      npm install
+      ```
+      
+    - Set up environment variables:
+      - Create a .env file in the root directory and add the following:
+      ```
+      PORT=4000
+      MONGO_URI=your_mongodb_connection_string
+      JWT_SECRET=your_jwt_secret_key
+      REDIS_HOST=your_redis_public_endpoint
+      REDIS_PORT=12570
+      REDIS_USERNAME = "default" 
+      REDIS_PASSWORD = your_redis_cloud_password
+      ARCJET_API_KEY=your_arcjet_api_key
+      ARCJET_ENV = development
+      EMAIL = your_email@email.com
+      EMAIL_PASSWORD = your_email_app_key
+      ```
+    - Start the development server:
 
-git clone https://github.com/Ronit-06/Task-Management-API.git
-cd Task-Management-AP
-
+      ```
+      npm run dev
+      ```
+      
+    - Start redis in a seperate terminal:
+   
+      ```
+      npm run start:worker
+      ```
+      
+  - **Usage:**
+    - Authentication:
+      - Register a new user via POST /api/auth/signup.
+      - Log in with POST /api/auth/login with the awt token recived from the signup.
+    - Task Management:
+      - Create tasks with POST /api/tasks
+      - Update tasks using PUT /api/tasks/:id
+      - Delete tasks with DELETE /api/tasks/:id
+      - Add comments to tasks via POST /api/tasks/:id/comments
+    - Reminder Emails:
+        - Reminder emails are sent based on task schedules using Redis and Bull queues.
+        - Monitored on Redis Cloud.
+    -  Security Features:
+        - Bot protection and rate limiting are enforced via Arcjet middleware.
+        - Monitored on Arcjet Dashboard.
+      
 ## 👨‍💻 Developer Notes 
 
 - This project is my attempt at building a production-ready API from scratch.
