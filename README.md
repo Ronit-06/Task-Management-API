@@ -65,7 +65,7 @@ Includes advanced features like **reminder emails, bot protection, rate limiting
 
 ---
 
-##👨‍💻 Developer Notes ##
+## 👨‍💻 Developer Notes 
 
 - This project is my attempt at building a production-ready API from scratch.
   
