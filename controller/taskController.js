@@ -1,6 +1,6 @@
 import Task from "../models/task.model.js";
 import mongoose from "mongoose";
-import { triggerReminder } from "./mailController.js";
+import { triggerReminder } from "./reminderController.js";
 import User from "../models/user.model.js";
 import {
   createTaskLog,
