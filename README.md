@@ -85,7 +85,7 @@ Includes advanced features like **reminder emails, bot protection, rate limiting
       ```
       
     - Set up environment variables:
-      - Create a .env file in the root directory and add the following:
+      - Create a .env.development.local file in the root directory and add the following:
         
       ```
       PORT=4000
