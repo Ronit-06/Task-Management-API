@@ -113,18 +113,18 @@ Includes advanced features like **reminder emails, bot protection, rate limiting
       ```
       
   - **Usage:**
-    - Authentication:
+    - Authentication
       - Register a new user via POST /api/auth/signup.
       - Log in with POST /api/auth/login with the awt token recived from the signup.
-    - Task Management:
+    - Task Management
       - Create tasks with POST /api/tasks
       - Update tasks using PUT /api/tasks/:id
       - Delete tasks with DELETE /api/tasks/:id
       - Add comments to tasks via POST /api/tasks/:id/comments
-    - Reminder Emails:
+    - Reminder Emails
         - Reminder emails are sent based on task schedules using Redis and Bull queues.
         - Monitored on Redis Cloud.
-    -  Security Features:
+    -  Security Features
         - Bot protection and rate limiting are enforced via Arcjet middleware.
         - Monitored on Arcjet Dashboard.
       
