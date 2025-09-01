@@ -28,6 +28,8 @@ Includes advanced features like **reminder emails, bot protection, rate limiting
   - Centralized error middleware with consistent API responses
 - **Logging**
   - Detailed logs for each user action and API event
+- **Code Quality**
+  - Enforced standards and linting with ESLint
 
 ---
 
@@ -39,7 +41,8 @@ Includes advanced features like **reminder emails, bot protection, rate limiting
 - **Task Queue:** Redis + Bull  
 - **Emails:** Nodemailer  
 - **Security:** Arcjet (bot protection, rate limiting, token bucket)  
-- **Environment Management:** dotenv  
+- **Environment Management:** dotenv
+- **Code Quality: **ESLint
 
 ---
 
@@ -65,6 +68,18 @@ Includes advanced features like **reminder emails, bot protection, rate limiting
 
 ---
 
+## 🚀 Getting Started
+
+  - **📦 Installation**
+     - Clone the repository:
+       ```
+       git clone https://github.com/Ronit-06/Task-Management-API.git
+       cd Task-Management-API
+       ```
+
+git clone https://github.com/Ronit-06/Task-Management-API.git
+cd Task-Management-AP
+
 ## 👨‍💻 Developer Notes 
 
 - This project is my attempt at building a production-ready API from scratch.
@@ -74,6 +89,7 @@ Includes advanced features like **reminder emails, bot protection, rate limiting
   - It’s also my first time making a complete API from scratch, handling everything from user auth to task logic, security middleware, and error handling.
   - I focused on using industry practices like JWT authentication, password hashing, middleware-based architecture, and structured logging to make the project closer to real-       world production APIs.
   - I explored Arcjet for bot protection, rate limiting, and token bucket security — something I hadn’t used before, but it gave me hands-on experience with API hardening.
+  - I also enforced code quality with ESLint, ensuring consistent formatting and adherence to best practices, which helped me maintain a clean and professional codebase.
   - Overall, this project was a way for me to explore scalable backend design and build something practical enough to be deployed in a real-world scenario.
 
 ---
