@@ -4,6 +4,7 @@ import Log from "../models/log.model.js";
 // Function to trigger reminder emails based on due dates
 export const triggerReminder = async (task) => {
   try {
+    
     const dueDate = new Date(task.dueDate);
     const now = new Date();
 
@@ -12,9 +13,10 @@ export const triggerReminder = async (task) => {
     await clearOldReminders(task._id);
 
     for (const days of reminderIntervals) {
-      const sendTime = new Date(dueDate);
-      sendTime.setDate(sendTime.getDate() - days);
+      // subtract exact days in milliseconds, keeps time intact
+      const sendTime = new Date(dueDate.getTime() - days * 24 * 60 * 60 * 1000);
 
+      // how long until we should send
       const delay = sendTime.getTime() - now.getTime();
 
       if (delay > 0) {
@@ -29,17 +31,27 @@ export const triggerReminder = async (task) => {
             jobId: `${task._id}-${days}`, // ensures uniqueness
             removeOnComplete: true,
             removeOnFail: true,
-          } // Bull will wait until this delay is reached
+          }
         );
-        
+
         console.log(
-          `Queued reminder for task "${task.title}" (${days} days before due date)`
+          `Queued reminder for task "${
+            task.title
+          }" (${days} days before due date, scheduled at ${sendTime.toISOString()})`
         );
 
         await Log.create({
           action: "Reminder Triggered",
-          details: `Reminder check for Task ${task._id} with ${days} day(s) remaining`,
+          details: `Reminder check for Task ${
+            task._id
+          } with ${days} day(s) remaining (scheduled at ${sendTime.toISOString()})`,
         });
+      } else {
+        console.log(
+          `Skipped reminder for task "${
+            task.title
+          }" (${days} days before due date) — sendTime already passed (${sendTime.toISOString()})`
+        );
       }
     }
   } catch (error) {
@@ -70,8 +82,6 @@ async function clearOldReminders(taskId) {
 //   console.log("Active jobs:", active.length);
 //   console.log("Completed jobs:", completed.length);
 //   console.log("Failed jobs:", failed.length);
-  
 // };
 
 // checkQueue();
-

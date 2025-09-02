@@ -87,7 +87,7 @@ export const updateTask = async (req, res) => {
       taskId: updatedTask._id,
       userId: req.user._id || null,
     });
-
+    
     await triggerReminder(updatedTask);
     res.status(200).json(updatedTask);
   } catch (error) {
