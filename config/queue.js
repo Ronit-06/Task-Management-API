@@ -1,5 +1,5 @@
 import Queue from "bull";
-import { REDIS_HOST, REDIS_PORT, REDIS_USERNAME, REDIS_PASSWORD } from "./env";
+import { REDIS_HOST, REDIS_PORT, REDIS_USERNAME, REDIS_PASSWORD } from "./env.js";
 
 // Create a Bull queue for sending emails
 export const emailQueue = new Queue("emailQueue", {

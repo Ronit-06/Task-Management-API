@@ -256,15 +256,15 @@ export const deleteComment = async (req, res) => {
 //priority filtering
 export const getTasksByPriority = async (req, res, next) => {
   try {
-    const { priority } = req.params;
-    const tasks = await Task.find({ priority });
-
+    const { level } = req.params;
     const validPriorities = ["low", "medium", "high"];
-    if (!validPriorities.includes(priority)) {
-      throw new Error(`Invalid priority: ${priority}`);
+    if (!validPriorities.includes(level)) {
+      throw new Error(`Invalid priority: ${level}`);
     }
 
-    await getAllTasksLog({ priority, userId: req.user._id || null });
+    const tasks = await Task.find({ priority: level });
+
+    await getAllTasksLog({ level, userId: req.user._id || null });
 
     res.status(200).json({ success: true, data: tasks });
   } catch (error) {
